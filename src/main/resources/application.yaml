@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: dirsync
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+
+dirsync:
+  datasource:
+    path: dirsync.db
