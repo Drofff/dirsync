@@ -2,8 +2,6 @@ package dev.mpalahuta.dirsync.repository.model;
 
 import jakarta.persistence.*;
 
-import java.util.Set;
-
 @Entity
 @Table(name = "directory_copy")
 public class DirectoryCopy {
@@ -17,9 +15,6 @@ public class DirectoryCopy {
 
     @Column(nullable = false, unique = true)
     private String localDirPath;
-
-    @OneToMany
-    private Set<TrackedFile> trackedFiles;
 
     protected DirectoryCopy() {
     }
@@ -51,14 +46,6 @@ public class DirectoryCopy {
 
     public void setLocalDirPath(String localDirPath) {
         this.localDirPath = localDirPath;
-    }
-
-    public Set<TrackedFile> getTrackedFiles() {
-        return trackedFiles;
-    }
-
-    public void setTrackedFiles(Set<TrackedFile> trackedFiles) {
-        this.trackedFiles = trackedFiles;
     }
 
 }

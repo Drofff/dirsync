@@ -76,8 +76,7 @@ public class HttpRemoteDirectoryClient implements RemoteDirectoryClient {
 
     @Override
     public void downloadFile(DownloadFileInput input) {
-        final var encodedFilename = URLEncoder.encode(input.getRemoteFilename(), StandardCharsets.UTF_8)
-                .replace("+", "%20");
+        final var encodedFilename = URLEncoder.encode(input.getRemoteFilename(), StandardCharsets.UTF_8);
 
         try (final var client = HttpClient.newHttpClient()) {
             final HttpResponse<InputStream> resp;
@@ -97,7 +96,8 @@ public class HttpRemoteDirectoryClient implements RemoteDirectoryClient {
                             + extractErrorMessage(new String(body.readAllBytes(), StandardCharsets.UTF_8)));
                 }
 
-                Files.copy(body, Path.of(input.getLocalFilePath()), StandardCopyOption.REPLACE_EXISTING);
+                final Path destFilePath = Path.of(input.getLocalFilePath(), input.getRemoteFilename());
+                Files.copy(body, destFilePath, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 throw new RuntimeException("failed to save remote file locally", e);
             }

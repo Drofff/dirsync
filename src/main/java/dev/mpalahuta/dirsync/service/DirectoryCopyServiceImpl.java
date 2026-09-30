@@ -8,6 +8,8 @@ import dev.mpalahuta.dirsync.service.model.CopyInfo;
 import dev.mpalahuta.dirsync.service.model.DownloadFileInput;
 import dev.mpalahuta.dirsync.service.model.FileInfo;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,6 +20,8 @@ import java.util.*;
 
 @Service
 public class DirectoryCopyServiceImpl implements DirectoryCopyService {
+
+    private static final Logger log = LoggerFactory.getLogger(DirectoryCopyServiceImpl.class);
 
     private final DirectoryCopyRepository directoryCopyRepository;
     private final TrackedFileRepository trackedFileRepository;
@@ -35,7 +39,7 @@ public class DirectoryCopyServiceImpl implements DirectoryCopyService {
     @Transactional
     public void createCopy(String serverIp, String localDirPath) {
         final var dirPath = Path.of(localDirPath);
-        if (!Files.exists(dirPath)) {
+        if (!Files.exists(dirPath) || !Files.isDirectory(dirPath)) {
             throw new IllegalArgumentException("directory does not exist");
         }
         try (final var files = Files.list(dirPath)) {
@@ -76,6 +80,8 @@ public class DirectoryCopyServiceImpl implements DirectoryCopyService {
         }
 
         this.trackedFileRepository.deleteById(trackedFile.getId());
+
+        log.info("removed file: {}", trackedFile.getFilename());
     }
 
     private void fetchRemoteFile(String fileToFetch, DirectoryCopy dirCopy) {
@@ -84,6 +90,8 @@ public class DirectoryCopyServiceImpl implements DirectoryCopyService {
 
         final var trackedFile = new TrackedFile(fileToFetch, LocalDateTime.now(), dirCopy);
         this.trackedFileRepository.saveAndFlush(trackedFile);
+
+        log.info("downloaded file: {}", fileToFetch);
     }
 
     @Override
@@ -92,10 +100,17 @@ public class DirectoryCopyServiceImpl implements DirectoryCopyService {
         final var dirCopy = this.directoryCopyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("unknown copy id"));
 
+        log.info("starting refresh for server {}", dirCopy.getServerIp());
+
         final Map<String, TrackedFile> trackedFilesMap = new HashMap<>();
-        dirCopy.getTrackedFiles().forEach(tf -> trackedFilesMap.put(tf.getFilename(), tf));
+        final List<TrackedFile> trackedFiles = this.trackedFileRepository.findByParentCopy(dirCopy);
+        trackedFiles.forEach(trackedFile -> trackedFilesMap.put(trackedFile.getFilename(), trackedFile));
+
+        log.info("number of files tracked locally: {}", trackedFilesMap.size());
 
         final List<FileInfo> remoteFiles = this.remoteDirectoryClient.viewDirState(dirCopy.getServerIp());
+
+        log.info("number of files in remote dir: {}", remoteFiles.size());
 
         final Set<String> remoteFilenames = new HashSet<>();
 
@@ -115,7 +130,7 @@ public class DirectoryCopyServiceImpl implements DirectoryCopyService {
             }
         });
 
-        dirCopy.getTrackedFiles().stream()
+        trackedFiles.stream()
                 .filter(tf -> !remoteFilenames.contains(tf.getFilename()))
                 .forEach(this::removeTrackedFile);
 
