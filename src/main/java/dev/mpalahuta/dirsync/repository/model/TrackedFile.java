@@ -2,7 +2,7 @@ package dev.mpalahuta.dirsync.repository.model;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "tracked_file")
@@ -16,14 +16,14 @@ public class TrackedFile {
     private String filename;
 
     @Column(nullable = false)
-    private LocalDateTime lastModifiedAt;
+    private ZonedDateTime lastModifiedAt;
 
     @ManyToOne
     private DirectoryCopy parentCopy;
 
     protected TrackedFile() {}
 
-    public TrackedFile(String filename, LocalDateTime lastModifiedAt, DirectoryCopy parentCopy) {
+    public TrackedFile(String filename, ZonedDateTime lastModifiedAt, DirectoryCopy parentCopy) {
         this.filename = filename;
         this.lastModifiedAt = lastModifiedAt;
         this.parentCopy = parentCopy;
@@ -45,11 +45,11 @@ public class TrackedFile {
         this.filename = filename;
     }
 
-    public LocalDateTime getLastModifiedAt() {
+    public ZonedDateTime getLastModifiedAt() {
         return lastModifiedAt;
     }
 
-    public void setLastModifiedAt(LocalDateTime lastModifiedAt) {
+    public void setLastModifiedAt(ZonedDateTime lastModifiedAt) {
         this.lastModifiedAt = lastModifiedAt;
     }
 

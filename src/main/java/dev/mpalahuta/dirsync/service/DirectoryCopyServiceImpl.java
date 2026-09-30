@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
@@ -74,7 +74,7 @@ public class DirectoryCopyServiceImpl implements DirectoryCopyService {
 
     private void removeTrackedFile(TrackedFile trackedFile) {
         try {
-            Files.delete(Path.of(trackedFile.getFilename()));
+            Files.delete(Path.of(trackedFile.getParentCopy().getLocalDirPath(), trackedFile.getFilename()));
         } catch (IOException e) {
             throw new RuntimeException("failed to delete file locally", e);
         }
@@ -88,7 +88,7 @@ public class DirectoryCopyServiceImpl implements DirectoryCopyService {
         final var downloadInput = new DownloadFileInput(dirCopy.getServerIp(), fileToFetch, dirCopy.getLocalDirPath());
         this.remoteDirectoryClient.downloadFile(downloadInput);
 
-        final var trackedFile = new TrackedFile(fileToFetch, LocalDateTime.now(), dirCopy);
+        final var trackedFile = new TrackedFile(fileToFetch, ZonedDateTime.now(), dirCopy);
         this.trackedFileRepository.saveAndFlush(trackedFile);
 
         log.info("downloaded file: {}", fileToFetch);

@@ -1,13 +1,13 @@
 package dev.mpalahuta.dirsync.service.model;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public class FileInfo {
 
     private final String filename;
-    private final LocalDateTime lastModifiedAt;
+    private final ZonedDateTime lastModifiedAt;
 
-    public FileInfo(String filename, LocalDateTime lastModifiedAt) {
+    public FileInfo(String filename, ZonedDateTime lastModifiedAt) {
         this.filename = filename;
         this.lastModifiedAt = lastModifiedAt;
     }
@@ -16,7 +16,7 @@ public class FileInfo {
         return filename;
     }
 
-    public LocalDateTime getLastModifiedAt() {
+    public ZonedDateTime getLastModifiedAt() {
         return lastModifiedAt;
     }
 

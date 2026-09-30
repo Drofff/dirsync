@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,7 +66,7 @@ public class HttpRemoteDirectoryClient implements RemoteDirectoryClient {
             for (final JsonNode node : fileInfoNodes) {
                 fileInfoList.add(new FileInfo(
                         node.get("filename").asString(),
-                        LocalDateTime.parse(node.get("lastModifiedAt").asString())));
+                        ZonedDateTime.parse(node.get("lastModifiedAt").asString())));
             }
             return fileInfoList;
         } catch (Exception e) {

@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,10 +55,10 @@ public class DirectoryShareServiceImpl implements DirectoryShareService {
     private FileInfo resolveFileInfo(Path filePath) {
         final String filename = filePath.getFileName().toString();
 
-        LocalDateTime lastModifiedAt;
+        ZonedDateTime lastModifiedAt;
         try {
             final var lastModifiedInstant = Files.getLastModifiedTime(filePath).toInstant();
-            lastModifiedAt = LocalDateTime.ofInstant(lastModifiedInstant, ZoneId.systemDefault());
+            lastModifiedAt = ZonedDateTime.ofInstant(lastModifiedInstant, ZoneId.systemDefault());
         } catch (IOException e) {
             throw new RuntimeException("read last modified time of " + filePath, e);
         }
